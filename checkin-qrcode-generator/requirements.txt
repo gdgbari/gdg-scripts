@@ -1,0 +1,5 @@
+firebase-admin==6.5.0
+segno==1.6.1
+cairosvg==2.7.1
+pillow==10.4.0
+pypdf==5.0.0
