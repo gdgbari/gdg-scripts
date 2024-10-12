@@ -7,3 +7,7 @@ const app = initializeApp({
     storageBucket: 'devfest-bari-24-app.appspot.com',
     databaseURL: "https://devfest-bari-24-app-default-rtdb.europe-west1.firebasedatabase.app",
 });
+
+const usersLib = require('./lib/users');
+const resetLib = require('./lib/reset');
+const quizzesLib = require('./lib/quizzes');
