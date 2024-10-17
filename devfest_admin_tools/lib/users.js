@@ -1,6 +1,7 @@
 const { getAuth } = require('firebase-admin/auth');
 const { getFirestore } = require('firebase-admin/firestore');
 const { getDatabase } = require('firebase-admin/database');
+const { deleteAllFromCollectionRef } = require('./helpers');
 
 const auth = getAuth();
 const firestore = getFirestore();
@@ -8,7 +9,8 @@ const realtimeDb = getDatabase();
 
 module.exports = {
     createUser,
-    deleteUser
+    deleteUser,
+    deleteUserSubcollections
 };
 
 async function createFirebaseAuthUser({ name, surname, email, password }) {
@@ -67,10 +69,9 @@ async function deleteFirebaseAuthUser(userId) {
 async function deleteFirestoreUser(userId) {
     const userDocRef = firestore.collection('users').doc(userId);
     const subCollections = await userDocRef.listCollections();
-    await Promise.all(subCollections.map(async (collection) => {
-        const docs = await collection.listDocuments();
-        await Promise.all(docs.map((doc) => doc.delete()));
-    }));
+    for (const subCollection of subCollections) {
+        await deleteAllFromCollectionRef(subCollection);
+    }
     await userDocRef.delete();
 }
 
@@ -83,4 +84,18 @@ async function deleteUser(userId) {
     await deleteFirebaseAuthUser(userId);
     await deleteFirestoreUser(userId);
     await deleteRealtimeDatabaseUser(userId);
+}
+
+async function deleteUserSubcollections() {
+    const usersRef = firestore.collection('users');
+    const snapshot = await usersRef.get();
+
+    for (const doc of snapshot.docs) {
+        const subCollections = await doc.ref.listCollections();
+        if (subCollections.length > 0) {
+            for (const subCollection of subCollections) {
+                await deleteAllFromCollectionRef(subCollection);
+            }
+        }
+    }
 }

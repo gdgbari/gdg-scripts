@@ -1,9 +1,11 @@
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
+const { deleteAllDocuments } = require('./helpers');
 
 const firestore = getFirestore();
 
 module.exports = {
-    removeDeprecatedFields
+    removeDeprecatedFields,
+    deleteAllQuizzes,
 }
 
 async function removeDeprecatedFields() {
@@ -19,4 +21,11 @@ async function removeDeprecatedFields() {
     });
 
     await batch.commit();
+}
+
+async function deleteAllQuizzes() {
+    const questionsRef = firestore.collection('questions');
+    await deleteAllDocuments(questionsRef);
+    const quizzesRef = firestore.collection('quizzes');
+    await deleteAllDocuments(quizzesRef);
 }
