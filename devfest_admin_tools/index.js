@@ -11,3 +11,4 @@ const app = initializeApp({
 const usersLib = require('./lib/users');
 const resetLib = require('./lib/reset');
 const quizzesLib = require('./lib/quizzes');
+const backupLib = require('./lib/backup');
