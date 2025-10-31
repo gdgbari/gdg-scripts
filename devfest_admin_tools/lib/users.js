@@ -10,7 +10,9 @@ const realtimeDb = getDatabase();
 module.exports = {
     createUser,
     deleteUser,
-    deleteUserSubcollections
+    deleteUserSubcollections,
+    assignGroupsToUsers,
+    updateUserGroupColors
 };
 
 async function createFirebaseAuthUser({ name, surname, email, password }) {
@@ -96,6 +98,47 @@ async function deleteUserSubcollections() {
             for (const subCollection of subCollections) {
                 await deleteAllFromCollectionRef(subCollection);
             }
+        }
+    }
+}
+
+async function assignGroupsToUsers() {
+    const usersRef = firestore.collection('users');
+    const groupsRef = firestore.collection('groups');
+    const usersSnapshot = await usersRef.get();
+    const groupsSnapshot = await groupsRef.get();
+
+    if (groupsSnapshot.empty) {
+        console.log('No groups found');
+        return;
+    }
+
+    const groups = groupsSnapshot.docs.map(doc => doc.ref);
+    let groupIndex = 0;
+
+    for (const userDoc of usersSnapshot.docs) {
+        const userData = userDoc.data();
+        if (!userData.group) {
+            const groupRef = groups[groupIndex];
+            await userDoc.ref.update({ group: groupRef });
+            groupIndex = (groupIndex + 1) % groups.length;
+        }
+    }
+}
+
+async function updateUserGroupColors() {
+    const usersRef = firestore.collection('users');
+    const usersSnapshot = await usersRef.get();
+
+    for (const userDoc of usersSnapshot.docs) {
+        const userData = userDoc.data();
+        if (userData.group) {
+            const groupDoc = await userData.group.get();
+            const groupData = groupDoc.data();
+            const groupColor = groupData.color;
+
+            const userDbRef = realtimeDb.ref(`leaderboard/users/${userDoc.id}`);
+            await userDbRef.update({ groupColor: groupColor });
         }
     }
 }

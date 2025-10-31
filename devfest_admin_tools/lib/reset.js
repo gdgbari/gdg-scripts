@@ -77,7 +77,7 @@ async function resetLeaderboardByRef(ref) {
 
     keys.forEach((key) => ref.child(key).update({
         score: 0,
-        timestamp: timestamp,
+        //timestamp: timestamp,
     }));
 }
 

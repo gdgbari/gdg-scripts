@@ -12,3 +12,11 @@ const usersLib = require('./lib/users');
 const resetLib = require('./lib/reset');
 const quizzesLib = require('./lib/quizzes');
 const backupLib = require('./lib/backup');
+
+const scryptLib = require('./lib/scrypt');
+
+(async () => {
+    scryptLib.testPassword('prova');
+
+    return process.exit(0);
+})();
